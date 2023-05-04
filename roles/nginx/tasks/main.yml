@@ -1,0 +1,31 @@
+---
+- name: Installa NGINX
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Generate rancher configuration
+  ansible.builtin.template:
+    src: rancher.conf.j2
+    dest: /tmp/rancher.conf
+  register: rancher_conf
+
+- name: Read the contents of the rancher configuration file
+  ansible.builtin.slurp:
+    src: "{{ rancher_conf.dest }}"
+  register: rancher_conf_content
+
+- name: Add rancher configuration to nginx.conf
+  ansible.builtin.blockinfile:
+    path: /etc/nginx/nginx.conf
+    block: "{{ rancher_conf_content.content | b64decode }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - RANCHER CONFIG"
+    create: yes
+    state: present
+
+- name: Riavvia NGINX
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
+

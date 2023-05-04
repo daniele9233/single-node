@@ -1,0 +1,21 @@
+- name: Install and configure RKE2 on master nodes
+  hosts: all
+  become: yes
+  gather_facts: no
+
+  roles:
+          #    - role: master1_install
+          # when: "'master1.isc-lab.giottolabs.com' in inventory_hostname"
+
+    - role: master1_config
+      when: "'master1.isc-lab.giottolabs.com' in inventory_hostname"
+
+      #    - role: master1_kubectl
+      # when: "'master1.isc-lab.giottolabs.com' in inventory_hostname"
+
+    - role: master1_helm_cert_manager_install
+      when: "'master1.isc-lab.giottolabs.com' in inventory_hostname"
+
+      #    - role: create_cluster
+      # when: "'master1.rke' in inventory_hostname"
+

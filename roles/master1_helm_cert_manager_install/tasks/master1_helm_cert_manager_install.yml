@@ -1,0 +1,23 @@
+- name: Add Rancher Helm repository
+  command: helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+
+- name: Create cattle-system namespace
+  command: kubectl create namespace cattle-system
+
+- name: Install cert-manager CRDs
+  command: kubectl -n cattle-system create secret tls tls-rancher-ingress --cert=/root/fullchain.pem --key=/root/privkey.pem
+
+- name: Add Helm repository
+  command: helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+
+- name: Update Helm repositories
+  command: helm repo update
+
+- name: Install cert-manager
+  command: helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=master1.isc-lab.giottolabs.com --set ingress.tls.source=secret --set ingress.tls.secretName=tls-rancher-ingress --set bootstrapPassword=DanielE9233?? --set global.cattle.psp.enabled=false 
+  #- name: Wait for rke2-ingress-nginx-controller-admission to be ready
+  #command: kubectl -n kube-system wait --for=condition=ready pod -l app.kubernetes.io/instance=rke2-ingress-nginx --timeout=300s
+
+- name: Wait for 4 minute
+  pause:
+    minutes: 2

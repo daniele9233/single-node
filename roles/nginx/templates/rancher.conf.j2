@@ -1,0 +1,13 @@
+stream {
+
+upstream rancher_servers_https {
+least_conn;
+server master1.isc-lab.giottolabs.com:443 max_fails=3 fail_timeout=5s;
+server master2.isc-lab.giottolabs.com:443 max_fails=3 fail_timeout=5s;
+server master3.isc-lab.giottolabs.com:443 max_fails=3 fail_timeout=5s;
+}
+server {
+listen 443;
+proxy_pass rancher_servers_https;
+}
+}

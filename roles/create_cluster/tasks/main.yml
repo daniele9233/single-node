@@ -1,0 +1,39 @@
+- name: Get Rancher API token
+  uri:
+    url: "https://master1.isc-lab.giottolabs.com/v3-public/localProviders/local?action=login"
+    method: POST
+    body_format: json
+    validate_certs: no
+    body:
+      username: "admin"
+      password: "DanielE9233??" # La password corrente (cambia questa se la password corrente non è 'DanielE9233??')
+    return_content: yes
+    status_code: [200, 201]
+  register: api_token_response
+
+- name: Create a new RKE2 Kubernetes cluster
+  uri:
+    url: "https://master1.isc-lab.giottolabs.com/v3/cluster"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ api_token_response.json.token }}"
+      Content-Type: "application/json"
+    body: >
+      {
+        "name": "kikkoderiso",
+        "rke2Config": {
+          "kubernetesVersion": "v1.24.12+rke2r1",
+          "networking": {
+            "plugin": "canal"
+          },
+          "kubeletArguments": {
+            "container-runtime": "remote",
+            "container-runtime-endpoint": "unix:///run/containerd/containerd.sock"
+          }
+        }
+      }
+    status_code: 201
+    validate_certs: no
+  register: create_cluster_result
+
